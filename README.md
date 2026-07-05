@@ -1,233 +1,171 @@
-# Full Stack FastAPI Template
+# Script Coverage AI 🎬
 
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Docker+Compose%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Docker%20Compose/badge.svg" alt="Test Docker Compose"></a>
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Backend%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Backend/badge.svg" alt="Test Backend"></a>
-<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/full-stack-fastapi-template.svg" alt="Coverage"></a>
+An AI-powered screenplay analysis platform that generates professional "script coverage" reports — the same kind of evaluation film studios, production companies, and literary agencies use internally to assess whether a script is worth developing further.
 
-## Technology Stack and Features
+Built as a personal full-stack project combining practical LLM integration with real-world film industry workflows.
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
-  - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
-  - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
-  - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
-- 🚀 [React](https://react.dev) for the frontend.
-  - 💃 Using TypeScript, hooks, [Vite](https://vitejs.dev), and other parts of a modern frontend stack.
-  - 🎨 [Tailwind CSS](https://tailwindcss.com) and [shadcn/ui](https://ui.shadcn.com) for the frontend components.
-  - 🤖 An automatically generated frontend client.
-  - 🧪 [Playwright](https://playwright.dev) for End-to-End testing.
-  - 🦇 Dark mode support.
-- 🐋 [Docker Compose](https://www.docker.com) for development and production.
-- 🔒 Secure password hashing by default.
-- 🔑 JWT (JSON Web Token) authentication.
-- 📫 Email based password recovery.
-- 📬 [Mailcatcher](https://mailcatcher.me) for local email testing during development.
-- ✅ Tests with [Pytest](https://pytest.org).
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
-- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
-- 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
+---
 
-### Dashboard Login
+## Table of Contents
+- [The Problem](#the-problem)
+- [What It Does](#what-it-does)
+- [Live Demo](#live-demo)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [How the AI Analysis Works](#how-the-ai-analysis-works)
+- [Getting Started](#getting-started)
+- [API Overview](#api-overview)
+- [Project Structure](#project-structure)
+- [What I Learned / Challenges Solved](#what-i-learned--challenges-solved)
+- [Future Improvements](#future-improvements)
 
-[![Dashboard login screenshot](img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
+---
 
-### Dashboard - Admin
+## The Problem
 
-[![Admin dashboard screenshot](img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
+In the film industry, "coverage" is a written evaluation of a screenplay — typically 1-2 pages covering the story's logline, genre, structure, character development, and a recommendation on whether it's worth pursuing. Studios and agencies pay professional "readers" to write these for every script submission, since executives don't have time to read every full screenplay themselves.
 
-### Dashboard - Items
+This project automates a first-pass version of that process using an LLM, giving writers and small production teams a fast, structured way to get feedback on a script before it goes to a professional reader — or simply as a self-assessment tool.
 
-[![Items dashboard screenshot](img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## What It Does
 
-### Dashboard - Dark Mode
+1. A user uploads a screenplay file (`.pdf` or `.txt`)
+2. The system extracts the raw text from the file
+3. The extracted script is sent to Google's Gemini API with a carefully structured prompt
+4. Gemini returns a structured coverage report containing:
+   - **Logline** — a one-sentence summary of the story
+   - **Genre** classification
+   - **Tone** description
+   - **Marketability score** (out of 10) with reasoning
+   - **Pacing notes** — structural/pacing feedback
+   - **Character arc summary**
+   - **Comparable films** — similar existing movies
+   - **Strengths** and **weaknesses** of the script
+5. The report is saved to the database and displayed in a clean dashboard
+6. Users can view, revisit, or delete their past screenplay analyses at any time
 
-[![Dark mode dashboard screenshot](img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## Live Demo
 
-### Interactive API Documentation
+🔗 [screenplay.vaishverse.xyz](#) *(coming soon)*
 
-[![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## Tech Stack
 
-## How To Use It
+**Backend**
+- [FastAPI](https://fastapi.tiangolo.com) — Python web framework for the API
+- [SQLModel](https://sqlmodel.tiangolo.com) — ORM combining SQLAlchemy + Pydantic
+- [PostgreSQL](https://www.postgresql.org) — relational database
+- [Alembic](https://alembic.sqlalchemy.org) — database migrations
+- [pypdf](https://pypdf.readthedocs.io) — PDF text extraction
+- [Google Gemini API](https://ai.google.dev) (`gemini-2.5-flash`) — LLM-powered script analysis
 
-You can **just fork or clone** this repository and use it as is.
+**Frontend**
+- [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- [Vite](https://vitejs.dev) — build tool
+- [TanStack Router](https://tanstack.com/router) — file-based routing
+- [TanStack Query](https://tanstack.com/query) — server state management
+- [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) — styling and components
+- Auto-generated, fully-typed API client from the backend's OpenAPI schema
 
-✨ It just works. ✨
+**Infrastructure**
+- Docker Compose — local development environment (multi-container: backend, frontend, database, reverse proxy)
+- Traefik — reverse proxy / routing
+- JWT-based authentication with secure password hashing
 
-### How to Use a Private Repository
+## Architecture
+┌─────────────┐      HTTP       ┌──────────────┐      SQL       ┌────────────┐
+│   React     │ ─────────────►  │   FastAPI    │ ─────────────► │ PostgreSQL │
+│  Frontend   │ ◄─────────────  │   Backend    │ ◄───────────── │            │
+└─────────────┘   JSON/REST     └──────┬───────┘                └────────────┘
+│
+│ HTTPS
+▼
+┌───────────────┐
+│  Gemini API   │
+│ (Google AI)   │
+└───────────────┘
+- The frontend never talks to Gemini directly — all LLM calls happen server-side, keeping the API key secure and allowing for validation, caching, and cost control.
+- Screenplay text and AI-generated reports are persisted in PostgreSQL, so reports don't need to be regenerated on every view.
 
-If you want to have a private repository, GitHub won't allow you to simply fork it as it doesn't allow changing the visibility of forks.
+## How the AI Analysis Works
 
-But you can do the following:
+The core of this project is prompt design and structured output handling:
 
-- Create a new GitHub repo, for example `my-full-stack`.
-- Clone this repository manually, set the name with the name of the project you want to use, for example `my-full-stack`:
+1. Extracted screenplay text is truncated to a safe token limit and inserted into a system prompt that instructs Gemini to act as a professional script reader
+2. The prompt explicitly requests a **strict JSON schema** as output (no markdown, no prose wrapper) to make parsing reliable
+3. The backend parses the returned JSON, handles edge cases (e.g., Gemini occasionally wrapping output in code fences), and stores it as a native JSON column in PostgreSQL
+4. If the AI call fails (rate limits, malformed output, etc.), the screenplay's status is marked `failed` with the error captured — so failures are visible and debuggable rather than silent
 
-```bash
-git clone git@github.com:fastapi/full-stack-fastapi-template.git my-full-stack
-```
+## Getting Started
 
-- Enter into the new directory:
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- A free [Google Gemini API key](https://aistudio.google.com/apikey)
 
-```bash
-cd my-full-stack
-```
-
-- Set the new origin to your new repository, copy it from the GitHub interface, for example:
-
-```bash
-git remote set-url origin git@github.com:octocat/my-full-stack.git
-```
-
-- Add this repo as another "remote" to allow you to get updates later:
-
-```bash
-git remote add upstream git@github.com:fastapi/full-stack-fastapi-template.git
-```
-
-- Push the code to your new repository:
-
-```bash
-git push -u origin master
-```
-
-### Update From the Original Template
-
-After cloning the repository, and after doing changes, you might want to get the latest changes from this original template.
-
-- Make sure you added the original repository as a remote, you can check it with:
-
-```bash
-git remote -v
-
-origin    git@github.com:octocat/my-full-stack.git (fetch)
-origin    git@github.com:octocat/my-full-stack.git (push)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (fetch)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (push)
-```
-
-- Pull the latest changes without merging:
+### Setup
 
 ```bash
-git pull --no-commit upstream master
+git clone https://github.com/Vaishnavi-MS-36/script-coverage-ai.git
+cd script-coverage-ai
+cp .env.example .env
 ```
 
-This will download the latest changes from this template without committing them, that way you can check everything is right before committing.
-
-- If there are conflicts, solve them in your editor.
-
-- Once you are done, commit the changes:
-
+Edit `.env` and set:
+- `SECRET_KEY`, `FIRST_SUPERUSER_PASSWORD`, `POSTGRES_PASSWORD` — generate each with:
 ```bash
-git merge --continue
+  openssl rand -hex 32
 ```
+- `GEMINI_API_KEY` — from Google AI Studio
 
-### Configure
-
-You can then update configs in the `.env` files to customize your configurations.
-
-Before deploying it, make sure you change at least the values for:
-
-- `SECRET_KEY`
-- `FIRST_SUPERUSER_PASSWORD`
-- `POSTGRES_PASSWORD`
-
-You can (and should) pass these as environment variables from secrets.
-
-Read the [deployment.md](./deployment.md) docs for more details.
-
-### Generate Secret Keys
-
-Some environment variables in the `.env` file have a default value of `changethis`.
-
-You have to change them with a secret key, to generate secret keys you can run the following command:
-
+Start everything:
 ```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
+docker compose watch
 ```
 
-Copy the content and use that as password / secret key. And run that again to generate another secure key.
+Visit:
+- **Frontend:** http://localhost:5173
+- **API docs (Swagger UI):** http://localhost:8000/docs
+- **Database viewer (Adminer):** http://localhost:8080
 
-## How To Use It - Alternative With Copier
+## API Overview
 
-This repository also supports generating a new project using [Copier](https://copier.readthedocs.io).
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/v1/screenplays/upload` | Upload a screenplay file and trigger AI analysis |
+| `GET` | `/api/v1/screenplays/` | List all screenplays for the current user |
+| `GET` | `/api/v1/screenplays/{id}` | Get a single screenplay's details/report |
+| `DELETE` | `/api/v1/screenplays/{id}` | Delete a screenplay |
 
-It will copy all the files, ask you configuration questions, and update the `.env` files with your answers.
+Full interactive API documentation is available at `/docs` when running locally.
 
-### Install Copier
+## Project Structure
+script-coverage-ai/
+├── backend/
+│   ├── app/
+│   │   ├── api/routes/screenplays.py   # Screenplay endpoints + AI logic
+│   │   ├── models.py                    # Database models (SQLModel)
+│   │   ├── alembic/versions/            # Database migrations
+│   │   └── core/config.py               # App settings/env config
+├── frontend/
+│   ├── src/
+│   │   ├── routes/_layout/screenplays.tsx  # Main upload/dashboard page
+│   │   └── client/                          # Auto-generated API client
+└── compose.yml                           # Docker Compose services
+## What I Learned / Challenges Solved
 
-You can install Copier with:
+This project involved debugging a realistic set of full-stack/DevOps issues:
+- Setting up a local multi-container Docker environment from scratch on Windows (WSL2 + Docker Desktop)
+- Diagnosing and fixing Alembic migration state corruption after a file-sync issue between host and container
+- Managing Python dependency locking (`uv.lock`) inside a workspace-based monorepo structure
+- Handling LLM API integration robustly — structured prompt design, JSON parsing edge cases, and graceful failure handling for rate limits
+- Wiring a fully-typed frontend API client generated from a live backend OpenAPI schema
 
-```bash
-pip install copier
-```
+## Future Improvements
 
-Or better, if you have [`pipx`](https://pipx.pypa.io/), you can run it with:
+- [ ] PDF export of the coverage report
+- [ ] Support for longer screenplays via chunked analysis
+- [ ] Comparison view across multiple drafts of the same script
+- [ ] Deployment with CI/CD pipeline (GitHub Actions)
 
-```bash
-pipx install copier
-```
+---
 
-**Note**: If you have `pipx`, installing copier is optional, you could run it directly.
-
-### Generate a Project With Copier
-
-Decide a name for your new project's directory, you will use it below. For example, `my-awesome-project`.
-
-Go to the directory that will be the parent of your project, and run the command with your project's name:
-
-```bash
-copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-If you have `pipx` and you didn't install `copier`, you can run it directly:
-
-```bash
-pipx run copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-**Note** the `--trust` option is necessary to be able to execute a [post-creation script](https://github.com/fastapi/full-stack-fastapi-template/blob/master/.copier/update_dotenv.py) that updates your `.env` files.
-
-### Input Variables
-
-Copier will ask you for some data, you might want to have at hand before generating the project.
-
-But don't worry, you can just update any of that in the `.env` files afterwards.
-
-The input variables, with their default values (some auto generated) are:
-
-- `project_name`: (default: `"FastAPI Project"`) The name of the project, shown to API users (in .env).
-- `stack_name`: (default: `"fastapi-project"`) The name of the stack used for Docker Compose labels and project name (no spaces, no periods) (in .env).
-- `secret_key`: (default: `"changethis"`) The secret key for the project, used for security, stored in .env, you can generate one with the method above.
-- `first_superuser`: (default: `"admin@example.com"`) The email of the first superuser (in .env).
-- `first_superuser_password`: (default: `"changethis"`) The password of the first superuser (in .env).
-- `smtp_host`: (default: "") The SMTP server host to send emails, you can set it later in .env.
-- `smtp_user`: (default: "") The SMTP server user to send emails, you can set it later in .env.
-- `smtp_password`: (default: "") The SMTP server password to send emails, you can set it later in .env.
-- `emails_from_email`: (default: `"info@example.com"`) The email account to send emails from, you can set it later in .env.
-- `postgres_password`: (default: `"changethis"`) The password for the PostgreSQL database, stored in .env, you can generate one with the method above.
-- `sentry_dsn`: (default: "") The DSN for Sentry, if you are using it, you can set it later in .env.
-
-## Backend Development
-
-Backend docs: [backend/README.md](./backend/README.md).
-
-## Frontend Development
-
-Frontend docs: [frontend/README.md](./frontend/README.md).
-
-## Deployment
-
-Deployment docs: [deployment.md](./deployment.md).
-
-## Development
-
-General development docs: [development.md](./development.md).
-
-This includes using Docker Compose, custom local domains, `.env` configurations, etc.
-
-## Release Notes
-
-Check the file [release-notes.md](./release-notes.md).
-
-## License
-
-The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+Built by [Vaishnavi](https://github.com/Vaishnavi-MS-36)

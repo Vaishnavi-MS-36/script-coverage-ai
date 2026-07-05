@@ -9,6 +9,10 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type Body_screenplays_upload_screenplay = {
+    file: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -50,6 +54,23 @@ export type PrivateUserCreate = {
     password: string;
     full_name: string;
     is_verified?: boolean;
+};
+
+export type ScreenplayPublic = {
+    title: string;
+    filename: string;
+    status?: string;
+    id: string;
+    owner_id: string;
+    coverage_report: ({
+    [key: string]: unknown;
+} | null);
+    created_at?: (string | null);
+};
+
+export type ScreenplaysPublic = {
+    data: Array<ScreenplayPublic>;
+    count: number;
 };
 
 export type Token = {
@@ -176,6 +197,31 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type ScreenplaysReadScreenplaysData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type ScreenplaysReadScreenplaysResponse = (ScreenplaysPublic);
+
+export type ScreenplaysReadScreenplayData = {
+    id: string;
+};
+
+export type ScreenplaysReadScreenplayResponse = (ScreenplayPublic);
+
+export type ScreenplaysDeleteScreenplayData = {
+    id: string;
+};
+
+export type ScreenplaysDeleteScreenplayResponse = (Message);
+
+export type ScreenplaysUploadScreenplayData = {
+    formData: Body_screenplays_upload_screenplay;
+};
+
+export type ScreenplaysUploadScreenplayResponse = (ScreenplayPublic);
 
 export type UsersReadUsersData = {
     limit?: number;

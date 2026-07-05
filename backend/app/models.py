@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 
 from pydantic import EmailStr
-from sqlalchemy import DateTime
+from sqlalchemy import Column, DateTime, JSON, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -131,3 +131,38 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+
+class ScreenplayBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    filename: str = Field(max_length=255)
+    status: str = Field(default="pending", max_length=50)  # pending, processing, completed, failed
+
+
+class ScreenplayCreate(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+
+
+class Screenplay(ScreenplayBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner: User | None = Relationship()
+    extracted_text: str | None = Field(default=None, sa_column=Column(Text))
+    coverage_report: dict | None = Field(default=None, sa_column=Column(JSON))
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+
+class ScreenplayPublic(ScreenplayBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    coverage_report: dict | None
+    created_at: datetime | None = None
+
+
+class ScreenplaysPublic(SQLModel):
+    data: list[ScreenplayPublic]
+    count: int
