@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
+    GEMINI_API_KEY: str = ""
 
     @computed_field  # type: ignore[prop-decorator]
     @property
